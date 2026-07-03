@@ -43,6 +43,25 @@ CREATE TABLE IF NOT EXISTS filings (
     fetched_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_filings_ticker_date ON filings (ticker, filing_date);
+
+CREATE TABLE IF NOT EXISTS features (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticker TEXT NOT NULL,
+    date TEXT NOT NULL,
+    sma_20 REAL,
+    sma_50 REAL,
+    rsi_14 REAL,
+    volatility_20 REAL,
+    sentiment_score REAL,
+    news_count INTEGER,
+    eps REAL,
+    revenue REAL,
+    revenue_growth REAL,
+    debt_to_equity REAL,
+    label INTEGER,
+    UNIQUE(ticker, date)
+);
+CREATE INDEX IF NOT EXISTS idx_features_ticker_date ON features (ticker, date);
 """
 
 
@@ -92,6 +111,41 @@ def insert_filings(conn: sqlite3.Connection, rows: list[dict]) -> int:
         """
         INSERT INTO filings (ticker, filing_type, filing_date, data, fetched_at)
         VALUES (:ticker, :filing_type, :filing_date, :data, :fetched_at)
+        """,
+        rows,
+    )
+    conn.commit()
+    return len(rows)
+
+
+def insert_features(conn: sqlite3.Connection, rows: list[dict]) -> int:
+    """Upsert computed feature rows, one per (ticker, date). Unlike the raw
+    tables, features are derived and idempotently recomputed, so re-inserting
+    a (ticker, date) replaces the row instead of appending. Each dict needs:
+    ticker, date, sma_20, sma_50, rsi_14, volatility_20, sentiment_score,
+    news_count, eps, revenue, revenue_growth, debt_to_equity, label."""
+    conn.executemany(
+        """
+        INSERT INTO features
+            (ticker, date, sma_20, sma_50, rsi_14, volatility_20,
+             sentiment_score, news_count, eps, revenue, revenue_growth,
+             debt_to_equity, label)
+        VALUES
+            (:ticker, :date, :sma_20, :sma_50, :rsi_14, :volatility_20,
+             :sentiment_score, :news_count, :eps, :revenue, :revenue_growth,
+             :debt_to_equity, :label)
+        ON CONFLICT(ticker, date) DO UPDATE SET
+            sma_20 = excluded.sma_20,
+            sma_50 = excluded.sma_50,
+            rsi_14 = excluded.rsi_14,
+            volatility_20 = excluded.volatility_20,
+            sentiment_score = excluded.sentiment_score,
+            news_count = excluded.news_count,
+            eps = excluded.eps,
+            revenue = excluded.revenue,
+            revenue_growth = excluded.revenue_growth,
+            debt_to_equity = excluded.debt_to_equity,
+            label = excluded.label
         """,
         rows,
     )
