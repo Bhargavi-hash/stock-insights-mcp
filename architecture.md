@@ -185,9 +185,7 @@ stock-insight-mcp/
 - Build one layer at a time (collection → features → model → MCP), verifying each
   with tests before moving to the next.
 - When the agent proposes a design change (e.g., swapping SQLite for Postgres),
-  check it against Section 5 first — if it contradicts a documented decision, either
-  push back or update this doc deliberately, not implicitly.
+  check it against Section 5 first — if it contradicts a documented decision, either push back or update this doc deliberately, not implicitly.
 - Update the "Open questions" section as decisions get made, so the doc stays the
   source of truth rather than going stale.
 
-  
