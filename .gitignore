@@ -1,6 +1,14 @@
 .venv/
+venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 *.db
 model/artifacts/*.json
+.env
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
