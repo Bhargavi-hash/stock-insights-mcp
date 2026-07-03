@@ -78,3 +78,5 @@ if __name__ == "__main__":
     ticker = sys.argv[1] if len(sys.argv) > 1 else "AAPL"
     count = collect_news(ticker)
     print(f"Wrote {count} rows for {ticker}")
+
+# 6bb90032562647c39b576b94726a2eec
