@@ -2,4 +2,10 @@ yfinance
 requests
 vaderSentiment
 pandas
+# Pinned <3: shap's XGBoost TreeExplainer can't parse the base_score format
+# XGBoost 3.x writes into model.json (fails with a ValueError on load).
+xgboost<3
+scikit-learn
+shap
+mcp[cli]
 pytest
